@@ -1,3 +1,94 @@
+diff --git a/mediapipe/calculators/tensor/tensors_to_classification_calculator.cc b/mediapipe/calculators/tensor/tensors_to_classification_calculator.cc
+index 87216f4..309a91c 100644
+--- a/mediapipe/calculators/tensor/tensors_to_classification_calculator.cc
++++ b/mediapipe/calculators/tensor/tensors_to_classification_calculator.cc
+@@ -26,7 +26,7 @@
+ #include "mediapipe/framework/formats/tensor.h"
+ #include "mediapipe/framework/port/ret_check.h"
+ #include "mediapipe/util/resource_util.h"
+-#if defined(MEDIAPIPE_MOBILE)
++#if defined(MEDIAPIPE_ANDROID)
+ #include "mediapipe/util/android/file/base/file.h"
+ #include "mediapipe/util/android/file/base/helpers.h"
+ #else
+diff --git a/mediapipe/calculators/tensorflow/tensorflow_session_from_frozen_graph_calculator.cc b/mediapipe/calculators/tensorflow/tensorflow_session_from_frozen_graph_calculator.cc
+index 1d6b941..1f54494 100644
+--- a/mediapipe/calculators/tensorflow/tensorflow_session_from_frozen_graph_calculator.cc
++++ b/mediapipe/calculators/tensorflow/tensorflow_session_from_frozen_graph_calculator.cc
+@@ -36,7 +36,7 @@
+ #include "tensorflow/core/framework/node_def.pb.h"
+ #include "tensorflow/core/public/session_options.h"
+ 
+-#if defined(MEDIAPIPE_MOBILE)
++#if defined(MEDIAPIPE_ANDROID)
+ #include "mediapipe/util/android/file/base/helpers.h"
+ #else
+ #include "mediapipe/framework/port/file_helpers.h"
+diff --git a/mediapipe/calculators/tflite/tflite_tensors_to_classification_calculator.cc b/mediapipe/calculators/tflite/tflite_tensors_to_classification_calculator.cc
+index 4d28b91..b3bfb57 100644
+--- a/mediapipe/calculators/tflite/tflite_tensors_to_classification_calculator.cc
++++ b/mediapipe/calculators/tflite/tflite_tensors_to_classification_calculator.cc
+@@ -25,7 +25,7 @@
+ #include "mediapipe/framework/port/ret_check.h"
+ #include "mediapipe/util/resource_util.h"
+ #include "tensorflow/lite/interpreter.h"
+-#if defined(MEDIAPIPE_MOBILE)
++#if defined(MEDIAPIPE_ANDROID)
+ #include "mediapipe/util/android/file/base/file.h"
+ #include "mediapipe/util/android/file/base/helpers.h"
+ #else
+diff --git a/mediapipe/calculators/util/detection_label_id_to_text_calculator.cc b/mediapipe/calculators/util/detection_label_id_to_text_calculator.cc
+index 20d1c1c..4c69696 100644
+--- a/mediapipe/calculators/util/detection_label_id_to_text_calculator.cc
++++ b/mediapipe/calculators/util/detection_label_id_to_text_calculator.cc
+@@ -20,7 +20,7 @@
+ #include "mediapipe/util/label_map.pb.h"
+ #include "mediapipe/util/resource_util.h"
+ 
+-#if defined(MEDIAPIPE_MOBILE)
++#if defined(MEDIAPIPE_ANDROID)
+ #include "mediapipe/util/android/file/base/file.h"
+ #include "mediapipe/util/android/file/base/helpers.h"
+ #else
+diff --git a/mediapipe/calculators/util/timed_box_list_id_to_label_calculator.cc b/mediapipe/calculators/util/timed_box_list_id_to_label_calculator.cc
+index 790b426..35504b5 100644
+--- a/mediapipe/calculators/util/timed_box_list_id_to_label_calculator.cc
++++ b/mediapipe/calculators/util/timed_box_list_id_to_label_calculator.cc
+@@ -20,7 +20,7 @@
+ #include "mediapipe/util/resource_util.h"
+ #include "mediapipe/util/tracking/box_tracker.pb.h"
+ 
+-#if defined(MEDIAPIPE_MOBILE)
++#if defined(MEDIAPIPE_ANDROID)
+ #include "mediapipe/util/android/file/base/file.h"
+ #include "mediapipe/util/android/file/base/helpers.h"
+ #else
+diff --git a/mediapipe/calculators/util/top_k_scores_calculator.cc b/mediapipe/calculators/util/top_k_scores_calculator.cc
+index b6bdf2f..8c2e573 100644
+--- a/mediapipe/calculators/util/top_k_scores_calculator.cc
++++ b/mediapipe/calculators/util/top_k_scores_calculator.cc
+@@ -30,7 +30,7 @@
+ #include "mediapipe/framework/port/statusor.h"
+ #include "mediapipe/util/resource_util.h"
+ 
+-#if defined(MEDIAPIPE_MOBILE)
++#if defined(MEDIAPIPE_ANDROID)
+ #include "mediapipe/util/android/file/base/file.h"
+ #include "mediapipe/util/android/file/base/helpers.h"
+ #else
+diff --git a/mediapipe/calculators/video/box_detector_calculator.cc b/mediapipe/calculators/video/box_detector_calculator.cc
+index 14ac12e..1f3fc0f 100644
+--- a/mediapipe/calculators/video/box_detector_calculator.cc
++++ b/mediapipe/calculators/video/box_detector_calculator.cc
+@@ -38,7 +38,7 @@
+ #include "mediapipe/util/tracking/tracking.h"
+ #include "mediapipe/util/tracking/tracking_visualization_utilities.h"
+ 
+-#if defined(MEDIAPIPE_MOBILE)
++#if defined(MEDIAPIPE_ANDROID)
+ #include "mediapipe/util/android/file/base/file.h"
+ #include "mediapipe/util/android/file/base/helpers.h"
+ #else
 diff --git a/mediapipe/framework/encode_binary_proto.bzl b/mediapipe/framework/encode_binary_proto.bzl
 index 3af435f..5a4a4a1 100644
 --- a/mediapipe/framework/encode_binary_proto.bzl
@@ -24,7 +115,7 @@ index 8f80312..45b8c53 100644
      alwayslink = 1,
  )
 diff --git a/mediapipe/graphs/object_detection_3d/calculators/gl_animation_overlay_calculator.cc b/mediapipe/graphs/object_detection_3d/calculators/gl_animation_overlay_calculator.cc
-index 9bc43ba..088f8f8 100644
+index 3a77e98..946bc73 100644
 --- a/mediapipe/graphs/object_detection_3d/calculators/gl_animation_overlay_calculator.cc
 +++ b/mediapipe/graphs/object_detection_3d/calculators/gl_animation_overlay_calculator.cc
 @@ -12,12 +12,8 @@
@@ -245,16 +336,17 @@ index 9bc43ba..088f8f8 100644
      LOG(ERROR) << "Failed to load animation asset.";
      return absl::UnknownError("Failed to load animation asset.");
 diff --git a/mediapipe/util/BUILD b/mediapipe/util/BUILD
-index 11f08ad..4d2db85 100644
+index 12a34a4..36d922f 100644
 --- a/mediapipe/util/BUILD
 +++ b/mediapipe/util/BUILD
-@@ -155,12 +155,8 @@ cc_library(
+@@ -174,13 +174,8 @@ cc_library(
      srcs = [
          "resource_util.cc",
          "resource_util_internal.h",
 -    ] + select({
 -        "//conditions:default": ["resource_util_default.cc"],
 -        "//mediapipe:android": ["resource_util_android.cc"],
+-        "//mediapipe/framework:android_no_jni": ["resource_util_loonix.cc"],
 -        "//mediapipe:ios": ["resource_util_apple.cc"],
 -        "//mediapipe:macos": ["resource_util_default.cc"],
 -    }),
@@ -263,7 +355,7 @@ index 11f08ad..4d2db85 100644
      hdrs = [
          "resource_util.h",
      ],
-@@ -183,19 +179,7 @@ cc_library(
+@@ -204,20 +199,7 @@ cc_library(
          "//mediapipe/framework/port:statusor",
          "//mediapipe/framework/port:file_helpers",
          "@com_google_absl//absl/strings",
@@ -275,6 +367,7 @@ index 11f08ad..4d2db85 100644
 -            "//mediapipe/util/android:asset_manager_util",
 -            "//mediapipe/util/android/file/base",
 -        ],
+-        "//mediapipe/framework:android_no_jni": [],
 -        "//mediapipe:ios": [],
 -        "//mediapipe:macos": [
 -            "@com_google_absl//absl/flags:flag",

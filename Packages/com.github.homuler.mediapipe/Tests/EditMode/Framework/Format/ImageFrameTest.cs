@@ -4,69 +4,66 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-using Mediapipe;
 using NUnit.Framework;
 using System;
 using System.Linq;
 using Unity.Collections;
 
-namespace Tests
+namespace Mediapipe.Tests
 {
   public class ImageFrameTest
   {
     #region Constructor
-    [Test, SignalAbort]
+    [Test]
     public void Ctor_ShouldInstantiateImageFrame_When_CalledWithNoArguments()
     {
       using (var imageFrame = new ImageFrame())
       {
-#pragma warning disable IDE0058
-        Assert.AreEqual(imageFrame.Format(), ImageFormat.Format.UNKNOWN);
-        Assert.AreEqual(imageFrame.Width(), 0);
-        Assert.AreEqual(imageFrame.Height(), 0);
-        Assert.Throws<FormatException>(() => { imageFrame.ChannelSize(); });
-        Assert.Throws<FormatException>(() => { imageFrame.NumberOfChannels(); });
-        Assert.Throws<FormatException>(() => { imageFrame.ByteDepth(); });
-        Assert.AreEqual(imageFrame.WidthStep(), 0);
-        Assert.AreEqual(imageFrame.PixelDataSize(), 0);
-        Assert.Throws<FormatException>(() => { imageFrame.PixelDataSizeStoredContiguously(); });
+        Assert.AreEqual(ImageFormat.Types.Format.Unknown, imageFrame.Format());
+        Assert.AreEqual(0, imageFrame.Width());
+        Assert.AreEqual(0, imageFrame.Height(), 0);
+        Assert.AreEqual(0, imageFrame.ChannelSize());
+        Assert.AreEqual(0, imageFrame.NumberOfChannels());
+        Assert.AreEqual(0, imageFrame.ByteDepth());
+        Assert.AreEqual(0, imageFrame.WidthStep());
+        Assert.AreEqual(0, imageFrame.PixelDataSize());
+        Assert.AreEqual(0, imageFrame.PixelDataSizeStoredContiguously());
         Assert.True(imageFrame.IsEmpty());
         Assert.False(imageFrame.IsContiguous());
         Assert.False(imageFrame.IsAligned(16));
-        Assert.AreEqual(imageFrame.MutablePixelData(), IntPtr.Zero);
-#pragma warning restore IDE0058
+        Assert.AreEqual(IntPtr.Zero, imageFrame.MutablePixelData());
       }
     }
 
     [Test]
     public void Ctor_ShouldInstantiateImageFrame_When_CalledWithFormat()
     {
-      using (var imageFrame = new ImageFrame(ImageFormat.Format.SBGRA, 640, 480))
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Sbgra, 640, 480))
       {
-        Assert.AreEqual(imageFrame.Format(), ImageFormat.Format.SBGRA);
-        Assert.AreEqual(imageFrame.Width(), 640);
-        Assert.AreEqual(imageFrame.Height(), 480);
-        Assert.AreEqual(imageFrame.ChannelSize(), 1);
-        Assert.AreEqual(imageFrame.NumberOfChannels(), 4);
-        Assert.AreEqual(imageFrame.ByteDepth(), 1);
-        Assert.AreEqual(imageFrame.WidthStep(), 640 * 4);
-        Assert.AreEqual(imageFrame.PixelDataSize(), 640 * 480 * 4);
-        Assert.AreEqual(imageFrame.PixelDataSizeStoredContiguously(), 640 * 480 * 4);
+        Assert.AreEqual(ImageFormat.Types.Format.Sbgra, imageFrame.Format());
+        Assert.AreEqual(640, imageFrame.Width());
+        Assert.AreEqual(480, imageFrame.Height());
+        Assert.AreEqual(1, imageFrame.ChannelSize());
+        Assert.AreEqual(4, imageFrame.NumberOfChannels());
+        Assert.AreEqual(1, imageFrame.ByteDepth());
+        Assert.AreEqual(640 * 4, imageFrame.WidthStep());
+        Assert.AreEqual(640 * 480 * 4, imageFrame.PixelDataSize());
+        Assert.AreEqual(640 * 480 * 4, imageFrame.PixelDataSizeStoredContiguously());
         Assert.False(imageFrame.IsEmpty());
         Assert.True(imageFrame.IsContiguous());
         Assert.True(imageFrame.IsAligned(16));
-        Assert.AreNotEqual(imageFrame.MutablePixelData(), IntPtr.Zero);
+        Assert.AreNotEqual(IntPtr.Zero, imageFrame.MutablePixelData());
       }
     }
 
     [Test]
     public void Ctor_ShouldInstantiateImageFrame_When_CalledWithFormatAndAlignmentBoundary()
     {
-      using (var imageFrame = new ImageFrame(ImageFormat.Format.GRAY8, 100, 100, 8))
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Gray8, 100, 100, 8))
       {
-        Assert.AreEqual(imageFrame.Width(), 100);
-        Assert.AreEqual(imageFrame.NumberOfChannels(), 1);
-        Assert.AreEqual(imageFrame.WidthStep(), 104);
+        Assert.AreEqual(100, imageFrame.Width());
+        Assert.AreEqual(1, imageFrame.NumberOfChannels());
+        Assert.AreEqual(104, imageFrame.WidthStep());
       }
     }
 
@@ -80,22 +77,23 @@ namespace Tests
       };
       pixelData.CopyFrom(srcBytes);
 
-      using (var imageFrame = new ImageFrame(ImageFormat.Format.SBGRA, 4, 2, 16, pixelData))
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Sbgra, 4, 2, 16, pixelData))
       {
-        Assert.AreEqual(imageFrame.Width(), 4);
-        Assert.AreEqual(imageFrame.Height(), 2);
+        Assert.AreEqual(4, imageFrame.Width());
+        Assert.AreEqual(2, imageFrame.Height());
         Assert.False(imageFrame.IsEmpty());
 
-        var bytes = imageFrame.CopyToByteBuffer(32);
+        var bytes = new byte[32];
+        imageFrame.CopyToBuffer(bytes);
         Assert.IsEmpty(bytes.Where((x, i) => x != srcBytes[i]));
       }
     }
 
-    [Test]
+    [Test, SignalAbort]
     public void Ctor_ShouldThrowMediaPipeException_When_CalledWithInvalidArgument()
     {
 #pragma warning disable IDE0058
-      Assert.Throws<MediaPipeException>(() => { new ImageFrame(ImageFormat.Format.SBGRA, 640, 480, 0); });
+      Assert.Throws<MediaPipeException>(() => { new ImageFrame(ImageFormat.Types.Format.Sbgra, 640, 480, 0); });
 #pragma warning restore IDE0058
     }
     #endregion
@@ -124,12 +122,11 @@ namespace Tests
     [Test]
     public void SetToZero_ShouldSetZeroToAllBytes()
     {
-      using (var imageFrame = new ImageFrame(ImageFormat.Format.GRAY8, 10, 10))
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Gray8, 10, 10))
       {
-        var origBytes = imageFrame.CopyToByteBuffer(100);
-
         imageFrame.SetToZero();
-        var bytes = imageFrame.CopyToByteBuffer(100);
+        var bytes = new byte[100];
+        imageFrame.CopyToBuffer(bytes);
         Assert.True(bytes.All((x) => x == 0));
       }
     }
@@ -139,7 +136,7 @@ namespace Tests
     [Test]
     public void SetAlignmentPaddingAreas_ShouldNotThrow()
     {
-      using (var imageFrame = new ImageFrame(ImageFormat.Format.GRAY8, 10, 10, 16))
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Gray8, 10, 10, 16))
       {
         Assert.DoesNotThrow(() => { imageFrame.SetAlignmentPaddingAreas(); });
       }
@@ -147,25 +144,49 @@ namespace Tests
     #endregion
 
     #region CopyToBuffer
+    [Test, SignalAbort]
+    public void CopyToByteBuffer_ShouldThrowException_When_BufferDepthIsWrong()
+    {
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Gray16, 10, 10))
+      {
+#pragma warning disable IDE0058
+        Assert.Throws<MediaPipeException>(() => { imageFrame.CopyToBuffer(new byte[100]); });
+#pragma warning restore IDE0058
+      }
+    }
+
     [Test]
     public void CopyToByteBuffer_ShouldReturnByteArray_When_BufferSizeIsLargeEnough()
     {
-      using (var imageFrame = new ImageFrame(ImageFormat.Format.GRAY8, 10, 10))
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Gray8, 10, 10))
       {
-        var normalBuffer = imageFrame.CopyToByteBuffer(100);
-        var largeBuffer = imageFrame.CopyToByteBuffer(120);
+        var normalBuffer = new byte[100];
+        var largeBuffer = new byte[120];
+        imageFrame.CopyToBuffer(normalBuffer);
+        imageFrame.CopyToBuffer(largeBuffer);
 
         Assert.IsEmpty(normalBuffer.Where((x, i) => x != largeBuffer[i]));
       }
     }
 
-    [Test]
+    [Test, SignalAbort]
     public void CopyToByteBuffer_ShouldThrowException_When_BufferSizeIsTooSmall()
     {
-      using (var imageFrame = new ImageFrame(ImageFormat.Format.GRAY8, 10, 10))
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Gray8, 10, 10))
       {
 #pragma warning disable IDE0058
-        Assert.Throws<MediaPipeException>(() => { imageFrame.CopyToByteBuffer(99); });
+        Assert.Throws<MediaPipeException>(() => { imageFrame.CopyToBuffer(new byte[99]); });
+#pragma warning restore IDE0058
+      }
+    }
+
+    [Test, SignalAbort]
+    public void CopyToUshortBuffer_ShouldThrowException_When_BufferDepthIsWrong()
+    {
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Gray8, 10, 10))
+      {
+#pragma warning disable IDE0058
+        Assert.Throws<MediaPipeException>(() => { imageFrame.CopyToBuffer(new ushort[100]); });
 #pragma warning restore IDE0058
       }
     }
@@ -173,22 +194,35 @@ namespace Tests
     [Test]
     public void CopyToUshortBuffer_ShouldReturnUshortArray_When_BufferSizeIsLargeEnough()
     {
-      using (var imageFrame = new ImageFrame(ImageFormat.Format.GRAY16, 10, 10))
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Gray16, 10, 10))
       {
-        var normalBuffer = imageFrame.CopyToUshortBuffer(100);
-        var largeBuffer = imageFrame.CopyToUshortBuffer(120);
+        var normalBuffer = new ushort[100];
+        var largeBuffer = new ushort[120];
+        imageFrame.CopyToBuffer(normalBuffer);
+        imageFrame.CopyToBuffer(largeBuffer);
 
         Assert.IsEmpty(normalBuffer.Where((x, i) => x != largeBuffer[i]));
       }
     }
 
-    [Test]
+    [Test, SignalAbort]
     public void CopyToUshortBuffer_ShouldThrowException_When_BufferSizeIsTooSmall()
     {
-      using (var imageFrame = new ImageFrame(ImageFormat.Format.GRAY16, 10, 10))
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Gray16, 10, 10))
       {
 #pragma warning disable IDE0058
-        Assert.Throws<MediaPipeException>(() => { imageFrame.CopyToUshortBuffer(99); });
+        Assert.Throws<MediaPipeException>(() => { imageFrame.CopyToBuffer(new ushort[99]); });
+#pragma warning restore IDE0058
+      }
+    }
+
+    [Test, SignalAbort]
+    public void CopyToFloatBuffer_ShouldThrowException_When_BufferDepthIsWrong()
+    {
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Gray8, 10, 10))
+      {
+#pragma warning disable IDE0058
+        Assert.Throws<MediaPipeException>(() => { imageFrame.CopyToBuffer(new float[100]); });
 #pragma warning restore IDE0058
       }
     }
@@ -196,22 +230,24 @@ namespace Tests
     [Test]
     public void CopyToFloatBuffer_ShouldReturnFloatArray_When_BufferSizeIsLargeEnough()
     {
-      using (var imageFrame = new ImageFrame(ImageFormat.Format.VEC32F1, 10, 10))
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Vec32F1, 10, 10))
       {
-        var normalBuffer = imageFrame.CopyToFloatBuffer(100);
-        var largeBuffer = imageFrame.CopyToFloatBuffer(120);
+        var normalBuffer = new float[100];
+        var largeBuffer = new float[120];
+        imageFrame.CopyToBuffer(normalBuffer);
+        imageFrame.CopyToBuffer(largeBuffer);
 
         Assert.IsEmpty(normalBuffer.Where((x, i) => Math.Abs(x - largeBuffer[i]) > 1e-9));
       }
     }
 
-    [Test]
+    [Test, SignalAbort]
     public void CopyToFloatBuffer_ShouldThrowException_When_BufferSizeIsTooSmall()
     {
-      using (var imageFrame = new ImageFrame(ImageFormat.Format.VEC32F1, 10, 10))
+      using (var imageFrame = new ImageFrame(ImageFormat.Types.Format.Vec32F1, 10, 10))
       {
 #pragma warning disable IDE0058
-        Assert.Throws<MediaPipeException>(() => { imageFrame.CopyToFloatBuffer(99); });
+        Assert.Throws<MediaPipeException>(() => { imageFrame.CopyToBuffer(new float[99]); });
 #pragma warning restore IDE0058
       }
     }

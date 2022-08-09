@@ -4,12 +4,10 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-using Mediapipe;
 using NUnit.Framework;
-using System;
 using System.Text.RegularExpressions;
 
-namespace Tests
+namespace Mediapipe.Tests
 {
   public class StringPacketTest
   {
@@ -20,9 +18,9 @@ namespace Tests
       using (var packet = new StringPacket())
       {
 #pragma warning disable IDE0058
-        Assert.AreEqual(packet.ValidateAsType().Code(), Status.StatusCode.Internal);
+        Assert.AreEqual(Status.StatusCode.Internal, packet.ValidateAsType().Code());
         Assert.Throws<MediaPipeException>(() => { packet.Get(); });
-        Assert.AreEqual(packet.Timestamp(), Timestamp.Unset());
+        Assert.AreEqual(Timestamp.Unset(), packet.Timestamp());
 #pragma warning restore IDE0058
       }
     }
@@ -33,8 +31,8 @@ namespace Tests
       using (var packet = new StringPacket("test"))
       {
         Assert.True(packet.ValidateAsType().Ok());
-        Assert.AreEqual(packet.Get(), "test");
-        Assert.AreEqual(packet.Timestamp(), Timestamp.Unset());
+        Assert.AreEqual("test", packet.Get());
+        Assert.AreEqual(Timestamp.Unset(), packet.Timestamp());
       }
     }
 
@@ -45,8 +43,8 @@ namespace Tests
       using (var packet = new StringPacket(bytes))
       {
         Assert.True(packet.ValidateAsType().Ok());
-        Assert.AreEqual(packet.Get(), "test");
-        Assert.AreEqual(packet.Timestamp(), Timestamp.Unset());
+        Assert.AreEqual("test", packet.Get());
+        Assert.AreEqual(Timestamp.Unset(), packet.Timestamp());
       }
     }
 
@@ -58,8 +56,8 @@ namespace Tests
         using (var packet = new StringPacket("test", timestamp))
         {
           Assert.True(packet.ValidateAsType().Ok());
-          Assert.AreEqual(packet.Get(), "test");
-          Assert.AreEqual(packet.Timestamp(), timestamp);
+          Assert.AreEqual("test", packet.Get());
+          Assert.AreEqual(timestamp, packet.Timestamp());
         }
       }
     }
@@ -73,8 +71,8 @@ namespace Tests
         using (var packet = new StringPacket(bytes, timestamp))
         {
           Assert.True(packet.ValidateAsType().Ok());
-          Assert.AreEqual(packet.Get(), "test");
-          Assert.AreEqual(packet.Timestamp(), timestamp);
+          Assert.AreEqual("test", packet.Get());
+          Assert.AreEqual(timestamp, packet.Timestamp());
         }
       }
     }
@@ -100,6 +98,29 @@ namespace Tests
     }
     #endregion
 
+    #region #At
+    [Test]
+    public void At_ShouldReturnNewPacketWithTimestamp()
+    {
+      using (var timestamp = new Timestamp(1))
+      {
+        var str = "str";
+        var packet = new StringPacket(str).At(timestamp);
+        Assert.AreEqual(str, packet.Get());
+        Assert.AreEqual(timestamp, packet.Timestamp());
+
+        using (var newTimestamp = new Timestamp(2))
+        {
+          var newPacket = packet.At(newTimestamp);
+          Assert.AreEqual(str, newPacket.Get());
+          Assert.AreEqual(newTimestamp, newPacket.Timestamp());
+        }
+
+        Assert.AreEqual(timestamp, packet.Timestamp());
+      }
+    }
+    #endregion
+
     #region #GetByteArray
     [Test]
     public void GetByteArray_ShouldReturnByteArray()
@@ -107,21 +128,37 @@ namespace Tests
       var bytes = new byte[] { (byte)'a', (byte)'b', 0, (byte)'c' };
       using (var packet = new StringPacket(bytes))
       {
-        Assert.AreEqual(packet.GetByteArray(), bytes);
-        Assert.AreEqual(packet.Get(), "ab");
+        Assert.AreEqual(bytes, packet.GetByteArray());
+        Assert.AreEqual("ab", packet.Get());
       }
     }
     #endregion
 
     #region #Consume
     [Test]
-    public void Consume_ShouldThrowNotSupportedException()
+    public void Consume_ShouldReturnStatusOrString_When_PacketIsEmpty()
     {
       using (var packet = new StringPacket())
       {
-#pragma warning disable IDE0058
-        Assert.Throws<NotSupportedException>(() => { packet.Consume(); });
-#pragma warning restore IDE0058
+        using (var statusOrString = packet.Consume())
+        {
+          Assert.False(statusOrString.Ok());
+          Assert.AreEqual(Status.StatusCode.Internal, statusOrString.status.Code());
+        }
+      }
+    }
+
+    [Test]
+    public void Consume_ShouldReturnStatusOrString_When_PacketIsNotEmpty()
+    {
+      using (var packet = new StringPacket("abc"))
+      {
+        using (var statusOrString = packet.Consume())
+        {
+          Assert.True(statusOrString.Ok());
+          Assert.AreEqual("abc", statusOrString.Value());
+        }
+        Assert.True(packet.IsEmpty());
       }
     }
     #endregion

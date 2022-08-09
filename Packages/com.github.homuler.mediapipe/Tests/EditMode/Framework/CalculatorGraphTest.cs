@@ -4,10 +4,9 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-using Mediapipe;
 using NUnit.Framework;
 
-namespace Tests
+namespace Mediapipe.Tests
 {
   public class CalculatorGraphTest
   {
@@ -42,8 +41,8 @@ output_stream: ""out""
       using (var graph = new CalculatorGraph(_ValidConfigText))
       {
         var config = graph.Config();
-        Assert.AreEqual(config.InputStream[0], "in");
-        Assert.AreEqual(config.OutputStream[0], "out");
+        Assert.AreEqual("in", config.InputStream[0]);
+        Assert.AreEqual("out", config.OutputStream[0]);
       }
     }
     #endregion
@@ -80,8 +79,8 @@ output_stream: ""out""
         }
 
         var config = graph.Config();
-        Assert.AreEqual(config.InputStream[0], "in");
-        Assert.AreEqual(config.OutputStream[0], "out");
+        Assert.AreEqual("in", config.InputStream[0]);
+        Assert.AreEqual("out", config.OutputStream[0]);
       }
     }
 
@@ -92,7 +91,7 @@ output_stream: ""out""
       {
         using (var status = graph.Initialize(CalculatorGraphConfig.Parser.ParseFromTextFormat(_ValidConfigText)))
         {
-          Assert.AreEqual(status.Code(), Status.StatusCode.Internal);
+          Assert.AreEqual(Status.StatusCode.Internal, status.Code());
         }
       }
     }
@@ -129,7 +128,7 @@ output_stream: ""out""
 
           using (var status = graph.Initialize(config, sidePacket))
           {
-            Assert.AreEqual(status.Code(), Status.StatusCode.Internal);
+            Assert.AreEqual(Status.StatusCode.Internal, status.Code());
           }
         }
       }
@@ -160,7 +159,7 @@ output_stream: ""out""
       {
         Assert.True(graph.StartRun().Ok());
         graph.Cancel();
-        Assert.AreEqual(graph.WaitUntilDone().Code(), Status.StatusCode.Cancelled);
+        Assert.AreEqual(Status.StatusCode.Cancelled, graph.WaitUntilDone().Code());
       }
     }
     #endregion
