@@ -34,3 +34,4 @@ Packages/com.github.homuler.mediapipe/Runtime/Resources/object_detection_3d.byte
 Packages/com.github.homuler.mediapipe/Runtime/Plugins/Protobuf/*.dll
 Packages/com.github.homuler.mediapipe/Runtime/Scripts/Protobuf/**/*.cs
 PackageManagerSettings 2.asset
+.mediapipe_android.aar.icloud
